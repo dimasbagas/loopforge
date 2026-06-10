@@ -1,0 +1,84 @@
+name: Build & Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install uv
+        run: pip install uv
+
+      - name: Install dependencies
+        run: uv sync
+
+      - name: Build executable
+        run: uv run python build_exe.py
+
+      - name: Verify build
+        run: |
+          if (Test-Path "dist\loopforge.exe") {
+            Write-Host "Build successful!"
+            Get-Item "dist\loopforge.exe" | Select-Object Name, Length
+          } else {
+            Write-Error "Build failed - loopforge.exe not found!"
+            exit 1
+          }
+
+      - name: Get version from tag
+        id: version
+        run: echo "VERSION=${{ github.ref_name }}" >> $env:GITHUB_OUTPUT
+
+      - name: Create Release and Upload
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: LoopForge ${{ github.ref_name }}
+          body: |
+            ## LoopForge ${{ github.ref_name }}
+
+            ### 🚀 Cara Install (Windows)
+            Buka PowerShell sebagai Administrator dan jalankan:
+            ```powershell
+            irm https://raw.githubusercontent.com/dimasbagas/loopforge/main/install.ps1 | iex
+            ```
+
+            ### ✅ Yang Terinstall Otomatis
+            - **LoopForge CLI** - Tool utama
+            - **FFmpeg** - Diinstall otomatis jika belum ada
+
+            ### 📋 Cara Pakai
+            ```powershell
+            # Interactive wizard
+            loopforge
+
+            # Langsung download & loop YouTube
+            loopforge youtube <url> -d 1h
+
+            # Loop video lokal
+            loopforge local video.mp4 -d 8h
+            ```
+
+            ### ⚙️ Persyaratan
+            - Windows 10/11 (64-bit)
+            - PowerShell 5.1+
+          files: |
+            dist/loopforge.exe
+            install.ps1
+          draft: false
+          prerelease: false

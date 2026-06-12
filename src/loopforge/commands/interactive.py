@@ -8,8 +8,51 @@ from rich.prompt import Prompt, Confirm
 from .local import local_command
 from .youtube import youtube_command
 from .info import info_command
+from ..config import SUPPORTED_VIDEO_EXTENSIONS
 
 console = Console()
+
+
+def _clean_path(raw: str) -> str:
+    """Bersihkan path dari tanda kutip dan whitespace."""
+    cleaned = raw.strip().strip('"').strip("'").strip()
+    return cleaned
+
+
+def _pick_video_from_dir(directory: Path) -> Optional[Path]:
+    """Jika user memasukkan folder, tampilkan daftar file video untuk dipilih."""
+    video_files = sorted([
+        f for f in directory.iterdir()
+        if f.is_file() and f.suffix.lower() in SUPPORTED_VIDEO_EXTENSIONS
+    ])
+
+    if not video_files:
+        console.print(f"[red]Tidak ada file video di folder: {directory}[/red]\n")
+        return None
+
+    console.print(f"\n[cyan]File video di {directory}:[/cyan]")
+    for i, f in enumerate(video_files, 1):
+        size_mb = f.stat().st_size / (1024 * 1024)
+        console.print(f"  [bold]{i}.[/bold] {f.name} [dim]({size_mb:.1f} MB)[/dim]")
+    console.print()
+
+    choices = [str(i) for i in range(1, len(video_files) + 1)]
+    pick = Prompt.ask("[bold]Pilih nomor file[/bold]", choices=choices)
+    return video_files[int(pick) - 1]
+
+
+def _resolve_video_path(raw_input: str) -> Optional[Path]:
+    """Resolve path video — handle tanda kutip dan folder."""
+    cleaned = _clean_path(raw_input)
+    path = Path(cleaned).expanduser().resolve()
+
+    if path.is_dir():
+        return _pick_video_from_dir(path)
+    elif path.is_file():
+        return path
+    else:
+        console.print(f"[red]Error: File '{cleaned}' tidak ditemukan.[/red]\n")
+        return None
 
 
 def _ask_save_directory(default_dir: Path) -> Path:
@@ -53,11 +96,9 @@ def interactive_wizard():
         choice = Prompt.ask("[bold]Pilihan Anda[/bold]", choices=["1", "2", "3", "4"], default="1")
 
         if choice == "1":
-            input_file = Prompt.ask("[cyan]Masukkan path video lokal (contoh: video.mp4)[/cyan]")
-            # Validasi file
-            file_path = Path(input_file.strip()).expanduser().resolve()
-            if not file_path.exists():
-                console.print(f"[red]Error: File '{input_file}' tidak ditemukan.[/red]\n")
+            input_file = Prompt.ask("[cyan]Masukkan path video lokal atau folder[/cyan]")
+            file_path = _resolve_video_path(input_file)
+            if file_path is None:
                 continue
 
             duration = Prompt.ask(
@@ -128,10 +169,9 @@ def interactive_wizard():
             break
 
         elif choice == "3":
-            input_file = Prompt.ask("[cyan]Masukkan path video lokal[/cyan]")
-            file_path = Path(input_file.strip()).expanduser().resolve()
-            if not file_path.exists():
-                console.print(f"[red]Error: File '{input_file}' tidak ditemukan.[/red]\n")
+            input_file = Prompt.ask("[cyan]Masukkan path video lokal atau folder[/cyan]")
+            file_path = _resolve_video_path(input_file)
+            if file_path is None:
                 continue
 
             try:

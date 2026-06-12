@@ -3,6 +3,7 @@ import json
 import shutil
 import os
 import signal
+import threading
 from pathlib import Path
 from typing import Optional, Callable
 
@@ -162,14 +163,28 @@ def render_loop(
     source_duration = video_info["duration"]
     codec = video_info.get("codec", "").lower()
 
-    # Gunakan -stream_loop secara default untuk semua codec
-    # Concat demuxer (mode lama) terkadang bermasalah dengan path di Windows
+    # Gunakan concat demuxer untuk AV1/VP9 demi kompatibilitas
     use_concat = False
-
+    if codec in ["av1", "vp9", "libdav1d", "libaom-av1", "libvpx-vp9"]:
+        use_concat = True
+        logger.info(f"Codec {codec} terdeteksi, menggunakan concat demuxer...")
 
     # Dapatkan encoder flags dengan mempertimbangkan source codec
     encoder_flags = get_encoder_flags(codec)
-    
+
+    if use_concat:
+        return _render_loop_concat(
+            input_path=input_path,
+            output_path=output_path,
+            target_duration=target_duration,
+            encoder_flags=encoder_flags,
+            source_codec=codec,
+            has_audio=has_audio,
+            source_duration=source_duration,
+            on_progress=on_progress,
+            cancel_check=cancel_check,
+        )
+
     # Konversi path ke format yang aman untuk FFmpeg di Windows
     safe_input_path = str(Path(input_path).resolve()).replace("\\", "/")
 
@@ -217,8 +232,8 @@ def _render_loop_concat(
     ) as f:
         concat_file = f.name
         for _ in range(loops_needed):
-            # Windows path: ganti backslash
-            safe_path = input_path.replace("\\", "/")
+            # Windows path: ganti backslash dan escape single quote
+            safe_path = input_path.replace("\\", "/").replace("'", "\\'")
             f.write(f"file '{safe_path}'\n")
 
     try:
@@ -260,7 +275,7 @@ def _run_ffmpeg_with_progress(
     process = subprocess.Popen(
         cmd,
         stdout=subprocess.PIPE,
-        stderr=subprocess.STDOUT,  # Merge stderr into stdout
+        stderr=subprocess.PIPE,  # Pisahkan stderr agar bisa dibaca untuk error reporting
         text=True,
         bufsize=1,
         creationflags=subprocess.CREATE_NO_WINDOW if os.name == "nt" else 0,
@@ -269,6 +284,17 @@ def _run_ffmpeg_with_progress(
     )
 
     stderr_lines = []
+
+    def read_stderr():
+        try:
+            for line in iter(process.stderr.readline, ""):
+                if line:
+                    stderr_lines.append(line.strip())
+        except Exception:
+            pass
+
+    stderr_thread = threading.Thread(target=read_stderr, daemon=True)
+    stderr_thread.start()
 
     try:
         for line in iter(process.stdout.readline, ""):
@@ -321,15 +347,10 @@ def _run_ffmpeg_with_progress(
                     process.kill()
                 raise FFmpegError("Render dibatalkan oleh pengguna")
 
-        # Baca stderr untuk error message
-        try:
-            stderr_data = process.stderr.read()
-            if stderr_data:
-                stderr_lines = stderr_data.strip().splitlines()
-                for ln in stderr_lines[-10:]:
-                    logger.debug(f"FFmpeg stderr: {ln}")
-        except Exception:
-            pass
+        # Debug print the last few lines of stderr if any
+        if stderr_lines:
+            for ln in stderr_lines[-10:]:
+                logger.debug(f"FFmpeg stderr: {ln}")
 
         process.wait()
 

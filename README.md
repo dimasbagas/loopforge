@@ -13,7 +13,7 @@
 Buka **PowerShell** dan jalankan:
 
 ```powershell
-irm https://raw.githubusercontent.com/dimasbagas/loopforge/main/install.ps1 | iex
+irm https://raw.githubusercontent.com/dimasbagas/loopforge/master/install.ps1 | iex
 ```
 
 > Script ini akan otomatis install **FFmpeg** (jika belum ada) dan **LoopForge CLI**, lalu mendaftarkan ke PATH.

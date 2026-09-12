@@ -16,14 +16,14 @@ echo "   | |__ / _ \ / _ \| '_ \ _/ _ \| '_/ _' / -_)"
 echo "   |____|\___/ \___/| .__/_|\___/|_| \__, \___|"
 echo "                    |_|               |___/    "
 echo ""
-echo "       LoopForge Termux Installer v1.0.0       "
+echo "       LoopForge Termux Installer v1.0.1       "
 echo "=============================================="
 echo ""
 
 # ─── Step 1: Install system packages ──────────────
 echo "[1/6] Mengupdate dan menginstall paket sistem..."
 pkg update -y
-pkg install -y python ffmpeg git curl
+pkg install -y python ffmpeg git curl python-pip python-pydantic 2>/dev/null || pkg install -y python ffmpeg git curl
 
 # ─── Step 2: Check Python version ─────────────────
 echo "[2/6] Memeriksa versi Python..."
@@ -32,8 +32,8 @@ echo "      Python: $PY_VER"
 
 python - <<'PY'
 import sys
-if sys.version_info < (3, 12):
-    print("ERROR: LoopForge membutuhkan Python 3.12+")
+if sys.version_info < (3, 10):
+    print("ERROR: LoopForge membutuhkan Python 3.10+")
     print(f"       Versi saat ini: {sys.version}")
     raise SystemExit(1)
 print("      Versi Python OK!")
@@ -65,7 +65,7 @@ python -m pip install \
   "typer>=0.12.0" \
   "rich>=13.7.0" \
   "pydantic>=2.5.0" \
-  "yt-dlp>=2024.7.0"
+  "yt-dlp>=2024.7.0" 2>/dev/null || python -m pip install typer rich yt-dlp "pydantic>=2.0.0" 2>/dev/null || python -m pip install typer rich yt-dlp
 
 # Buat folder kerja
 mkdir -p "$INSTALL_DIR/outputs" "$INSTALL_DIR/downloads" "$INSTALL_DIR/logs"

@@ -174,7 +174,16 @@ Setelah itu, file galeri/internal Anda dapat diakses di lokasi <code>/sdcard/</c
 </details>
 
 <details>
-<summary><b>3. Mengapa Termux F-Droid yang direkomendasikan, bukan Play Store?</b></summary>
+<summary><b>3. Error `CANNOT LINK EXECUTABLE "curl": cannot locate symbol...` di Termux?</b></summary>
+<br>
+Ini terjadi jika pustaka OpenSSL/curl di Termux belum di-update secara penuh. Solusinya, jalankan:<br>
+<code>apt update && apt full-upgrade -y</code><br>
+Atau gunakan alternatif <code>wget</code>:<br>
+<code>pkg install -y wget && wget -qO- https://raw.githubusercontent.com/dimasbagas/loopforge/master/install-termux.sh | bash</code>
+</details>
+
+<details>
+<summary><b>4. Mengapa Termux F-Droid yang direkomendasikan, bukan Play Store?</b></summary>
 <br>
 Aplikasi Termux di Google Play Store sudah <b>tidak diupdate lagi (deprecated)</b> dan mengalami kendala instalasi paket <code>pkg</code>. Selalu download Termux terbaru dari <a href="https://f-droid.org/en/packages/com.termux/">F-Droid</a>.
 </details>

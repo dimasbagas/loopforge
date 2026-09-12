@@ -16,14 +16,14 @@ echo "   | |__ / _ \ / _ \| '_ \ _/ _ \| '_/ _' / -_)"
 echo "   |____|\___/ \___/| .__/_|\___/|_| \__, \___|"
 echo "                    |_|               |___/    "
 echo ""
-echo "       LoopForge Termux Installer v1.0.2       "
+echo "       LoopForge Termux Installer v1.0.3       "
 echo "=============================================="
 echo ""
 
 # ─── Step 1: Install system packages ──────────────
 echo "[1/6] Mengupdate dan menginstall paket sistem..."
 pkg update -y
-pkg install -y python ffmpeg git curl python-pip python-pydantic || true
+pkg install -y python ffmpeg git curl python-pip || true
 
 # ─── Step 2: Check Python version ─────────────────
 echo "[2/6] Memeriksa versi Python..."
@@ -61,7 +61,8 @@ git clone --depth 1 "$REPO_URL" "$INSTALL_DIR"
 # ─── Step 5: Install Python dependencies ──────────
 echo "[5/6] Menginstall dependency Python..."
 python -m pip install --upgrade pip || true
-python -m pip install typer rich yt-dlp pydantic
+python -m pip install typer rich yt-dlp
+python -m pip install pydantic 2>/dev/null || true
 
 # Buat folder kerja
 mkdir -p "$INSTALL_DIR/outputs" "$INSTALL_DIR/downloads" "$INSTALL_DIR/logs"

@@ -16,8 +16,31 @@ def _get_project_root() -> Path:
         # Sedang berjalan sebagai Python script
         return Path(__file__).resolve().parent.parent.parent
 
+def _get_default_output_dir() -> Path:
+    """
+    Deteksi folder output default:
+    - Jika di Termux / Android dan /sdcard/Download memiliki izin tulis: simpan ke /sdcard/Download/LoopForge
+    - Atau jika ~/storage/downloads memiliki izin tulis: simpan ke ~/storage/downloads/LoopForge
+    - Jika izin belum diberikan / ditolak: fallback aman ke PROJECT_ROOT / "outputs"
+    """
+    import os
+
+    for candidate in [Path("/sdcard/Download"), Path.home() / "storage" / "downloads"]:
+        try:
+            if candidate.exists() and candidate.is_dir() and os.access(candidate, os.W_OK):
+                out_dir = candidate / "LoopForge"
+                out_dir.mkdir(parents=True, exist_ok=True)
+                return out_dir
+        except Exception:
+            pass
+
+    out_dir = PROJECT_ROOT / "outputs"
+    out_dir.mkdir(parents=True, exist_ok=True)
+    return out_dir
+
+
 PROJECT_ROOT = _get_project_root()
-OUTPUT_DIR = PROJECT_ROOT / "outputs"
+OUTPUT_DIR = _get_default_output_dir()
 DOWNLOAD_DIR = PROJECT_ROOT / "downloads"
 LOGS_DIR = PROJECT_ROOT / "logs"
 LOGS_FILE = LOGS_DIR / "app.log"

@@ -151,7 +151,7 @@ loopforge info "C:\Videos\sample.mp4"
 | OS / Platform | Lokasi Default Simpan File Output |
 | :--- | :--- |
 | **Windows** | `C:\Users\<Username>\AppData\Local\Programs\LoopForge\outputs\` *(Installer)* atau folder aktif |
-| **Android / Termux** | `$PREFIX/opt/loopforge/outputs/` |
+| **Android / Termux** | `/sdcard/Download/LoopForge/` *(Langsung tersimpan di folder Download / Galeri HP)* |
 | **Linux / macOS** | `$HOME/.local/share/loopforge/outputs/` atau folder project |
 
 ---

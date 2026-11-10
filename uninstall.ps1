@@ -7,8 +7,8 @@ Write-Host "                  Uninstaller Script                        " -Foreg
 Write-Host "============================================================" -ForegroundColor Red
 Write-Host ""
 
-$InstallDir = "$env:USERPROFILE\AppData\Local\Programs\LoopForge"
-$ShortcutPath = "$env:USERPROFILE\Desktop\LoopForge.lnk"
+$InstallDir = Join-Path $env:LOCALAPPDATA "Programs\LoopForge"
+$ShortcutPath = Join-Path ([Environment]::GetFolderPath("Desktop")) "LoopForge.lnk"
 
 # 1. Remove Desktop Shortcut
 if (Test-Path $ShortcutPath) {

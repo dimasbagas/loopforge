@@ -14,10 +14,10 @@ LoopForge dapat dijalankan di berbagai Sistem Operasi. Berikut adalah prasyarat 
 
 | OS / Platform | Status | Aplikasi/Tools yang Perlu Disiapkan Terlebih Dahulu |
 | :--- | :---: | :--- |
-| **Windows 10/11** (64-bit) | ✅ **Resmi** | • **PowerShell 5.1+** (Sudah ada di Windows)<br>• **Internet** (Untuk download video & installer)<br>• *FFmpeg akan diinstall otomatis oleh installer* |
+| **Windows 10/11** (64-bit) | ✅ **Resmi** | • **PowerShell 5.1+** (sudah ada di Windows)<br>• **Internet**<br>• *LoopForge + FFmpeg dipasang otomatis — tanpa Python, winget, Microsoft Store, atau admin* |
 | **Android / HP** | ✅ **Resmi** | • **[Termux App](https://f-droid.org/en/packages/com.termux/)** *(Wajib download dari F-Droid, **BUKAN** Play Store)*<br>• Perintah `termux-setup-storage` untuk akses galeri/memori HP |
-| **Linux** (Ubuntu, Debian, Arch, Fedora) | ✅ **Resmi** | • **Python 3.10+** (`python3`, `python3-pip`, `python3-venv`)<br>• **FFmpeg** (`sudo apt install ffmpeg` / `sudo pacman -S ffmpeg`)<br>• **Git** (`sudo apt install git`) |
-| **macOS** (Intel & Apple Silicon) | ✅ **Kompatibel** | • **Python 3.10+** (`brew install python`)<br>• **FFmpeg** (`brew install ffmpeg`)<br>• **Git** (`brew install git`) |
+| **Linux** (Ubuntu, Debian, Arch, Fedora) | ✅ **Resmi** | • **Python 3.12+** (`python3`, `python3-pip`, `python3-venv`)<br>• **FFmpeg** (`sudo apt install ffmpeg` / `sudo pacman -S ffmpeg`)<br>• **Git** (`sudo apt install git`) |
+| **macOS** (Intel & Apple Silicon) | ✅ **Kompatibel** | • **Python 3.12+** (`brew install python`)<br>• **FFmpeg** (`brew install ffmpeg`)<br>• **Git** (`brew install git`) |
 
 ---
 
@@ -32,7 +32,7 @@ Buka **PowerShell** lalu jalankan:
 ```powershell
 irm https://raw.githubusercontent.com/dimasbagas/loopforge/master/install.ps1 | iex
 ```
-> *Script otomatis menginstall **FFmpeg** via winget (jika belum ada), mendownload **LoopForge CLI**, dan menambahkannya ke PATH.*
+> *Satu perintah ini mengunduh **LoopForge** + **FFmpeg portable**, lalu mendaftarkan `loopforge` ke PATH. Tidak perlu Python, winget, Microsoft Store, atau hak Administrator. Aman dijalankan berulang kali dan tidak menghapus video di folder `outputs`.*
 
 #### 📱 Android (Termux)
 Buka aplikasi **Termux** lalu jalankan:
@@ -53,11 +53,11 @@ curl -fsSL https://raw.githubusercontent.com/dimasbagas/loopforge/master/install
 
 ### 📦 Metode 2: Portable Executable (.exe) — Windows Tanpa Install
 
-Jika Anda tidak ingin menginstall Python atau script:
+Jika Anda tidak ingin memakai installer:
 1. Buka [GitHub Releases LoopForge](https://github.com/dimasbagas/loopforge/releases/latest).
 2. Download file `loopforge.exe`.
 3. Pindahkan file `loopforge.exe` ke folder pilihan Anda (misalnya `C:\Tools\`).
-4. Pastikan **FFmpeg** sudah terinstall di komputer Anda (`winget install Gyan.FFmpeg`).
+4. Letakkan `ffmpeg.exe` dan `ffprobe.exe` di folder yang sama, **atau** pastikan FFmpeg sudah ada di PATH (`winget install Gyan.FFmpeg`).
 5. Buka Command Prompt / PowerShell di folder tersebut dan jalankan:
    ```cmd
    .\loopforge.exe --help
@@ -67,7 +67,8 @@ Jika Anda tidak ingin menginstall Python atau script:
 
 ### 🛠️ Metode 3: Manual / From Source (Git Clone) — Semua OS / Developer
 
-Cocok untuk pengembang yang ingin mengubah kode sumber atau menggunakan di macOS/Linux:
+Cocok untuk pengembang yang ingin mengubah kode sumber atau menggunakan di macOS/Linux.
+> **Butuh Python 3.12 atau lebih baru.** Cek dengan `python --version` (Windows: `py -0p` untuk melihat semua versi yang terpasang).
 
 1. **Clone repository:**
    ```bash
@@ -189,15 +190,21 @@ Aplikasi Termux di Google Play Store sudah <b>tidak diupdate lagi (deprecated)</
 </details>
 
 <details>
-<summary><b>4. Command `loopforge` tidak ditemukan setelah install?</b></summary>
+<summary><b>5. Command `loopforge` tidak ditemukan setelah install?</b></summary>
 <br>
 Tutup terminal Anda dan buka terminal yang baru agar variable <code>PATH</code> diperbarui oleh sistem.
 </details>
 
 <details>
-<summary><b>5. Apakah render mendukung Akselerasi GPU (NVIDIA NVENC)?</b></summary>
+<summary><b>6. Apakah render mendukung Akselerasi GPU (NVIDIA NVENC)?</b></summary>
 <br>
 Ya! Di Windows/Linux dengan Kartu Grafis NVIDIA, LoopForge secara otomatis mendeteksi driver NVENC untuk mempercepat proses render video hingga 5x-10x lebih cepat dibanding CPU.
+</details>
+
+<details>
+<summary><b>7. Apakah installer Windows butuh winget / Python / hak Administrator?</b></summary>
+<br>
+Tidak. Installer mengunduh <code>loopforge.exe</code> dan FFmpeg portable ke <code>%LOCALAPPDATA%\Programs\LoopForge</code>, lalu menambahkan folder itu ke PATH user. Tidak ada perubahan sistem global dan tidak perlu hak Administrator.
 </details>
 
 ---

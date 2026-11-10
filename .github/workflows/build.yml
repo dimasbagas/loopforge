@@ -53,14 +53,14 @@ jobs:
             ## LoopForge ${{ github.ref_name }}
 
             ### 🚀 Cara Install (Windows)
-            Buka PowerShell sebagai Administrator dan jalankan:
+            Buka PowerShell (tidak perlu Administrator) lalu jalankan:
             ```powershell
-            irm https://raw.githubusercontent.com/dimasbagas/loopforge/main/install.ps1 | iex
+            irm https://raw.githubusercontent.com/dimasbagas/loopforge/master/install.ps1 | iex
             ```
 
             ### ✅ Yang Terinstall Otomatis
             - **LoopForge CLI** - Tool utama
-            - **FFmpeg** - Diinstall otomatis jika belum ada
+            - **FFmpeg + ffprobe** - Portable, langsung aktif di PATH (tanpa winget/Python)
 
             ### 📋 Cara Pakai
             ```powershell
@@ -77,6 +77,7 @@ jobs:
             ### ⚙️ Persyaratan
             - Windows 10/11 (64-bit)
             - PowerShell 5.1+
+            - Internet
           files: |
             dist/loopforge.exe
             install.ps1
